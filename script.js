@@ -2,12 +2,13 @@
   var roleData = {
     citizen: { name: 'Rahul Sharma', initials: 'RS', role: 'Citizen' },
     officer: { name: 'Rajesh Kumar', initials: 'RK', role: 'Inspector · East District' },
+    court: { name: 'Hon. District Judge', initials: 'DJ', role: 'District Court' },
     admin: { name: 'Arvind Kumar IPS', initials: 'AK', role: 'Superintendent of Police' }
   };
 
   function selectRole(r) {
     currentRole = r;
-    ['citizen','officer','admin'].forEach(function(x) {
+    ['citizen','officer','court','admin'].forEach(function(x) {
       document.getElementById('r-'+x).classList.toggle('selected', x === r);
     });
   }
@@ -49,7 +50,7 @@
     document.getElementById('screen-login').style.display = 'block';
     document.getElementById('screen-login').classList.add('active');
     currentRole = 'admin';
-    ['citizen','officer','admin'].forEach(function(x) { document.getElementById('r-'+x).classList.remove('selected'); });
+    ['citizen','officer','court','admin'].forEach(function(x) { document.getElementById('r-'+x).classList.remove('selected'); });
     document.getElementById('fir-success').style.display = 'none';
   }
 
