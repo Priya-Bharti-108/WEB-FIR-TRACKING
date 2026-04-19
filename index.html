@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIR Tracking System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+  <div class="top-bar">
+    <div class="top-bar-inner">
+      <div class="logo-block">
+        <div class="logo-icon">⚖</div>
+        <div>
+          <div class="logo-text">FIR &amp; Case Tracking System</div>
+          <div class="logo-sub">Government of India · Digital Police Portal</div>
+        </div>
+      </div>
+      <div class="user-badge" id="user-badge" style="display:none;">
+        <div class="avatar" id="top-avatar">SA</div>
+        <div>
+          <div id="top-name" style="font-size:12px;font-weight:500;"></div>
+          <div style="font-size:10px;opacity:0.6;"><span class="status-dot"></span>Online</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="logout()" style="margin-left:6px;font-size:10px;padding:4px 8px;">Logout</button>
+      </div>
+    </div>
+    <div class="nav-tabs" id="nav-tabs" style="display:none;">
+      <div class="nav-tab active" onclick="showScreen('dashboard',this)">Dashboard</div>
+      <div class="nav-tab" onclick="showScreen('fir-list',this)">FIR List</div>
+      <div class="nav-tab" id="tab-file-fir" onclick="showScreen('file-fir',this)" style="display:none;">File FIR</div>
+      <div class="nav-tab" id="tab-officers" onclick="showScreen('officers',this)" style="display:none;">Officers</div>
+      <div class="nav-tab" id="tab-analytics" onclick="showScreen('analytics',this)" style="display:none;">Analytics</div>
+      <div class="nav-tab" id="tab-notifications" onclick="showScreen('notifications',this)">Notifications</div>
+    </div>
+  </div>
+
+  <!-- LOGIN SCREEN -->
+  <div class="screen active" id="screen-login" style="background:var(--surface);min-height:700px;padding:30px 20px;">
+    <div class="login-wrap">
+      <div class="login-hero">
+        <div style="font-size:40px;margin-bottom:8px;">🛡</div>
+        <div style="font-size:18px;font-weight:500;">Digital FIR Portal</div>
+        <div style="font-size:11px;opacity:0.7;margin-top:4px;">Secure · Transparent · Accountable</div>
+      </div>
+      <div class="login-body">
+        <div style="margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:500;margin-bottom:10px;">Login as:</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+            <div class="role-card" onclick="selectRole('citizen')" id="r-citizen" style="padding:12px 8px;">
+              <div style="font-size:22px;">👤</div>
+              <div style="font-size:11px;font-weight:500;margin-top:4px;">Citizen</div>
+            </div>
+            <div class="role-card" onclick="selectRole('officer')" id="r-officer" style="padding:12px 8px;">
+              <div style="font-size:22px;">👮</div>
+              <div style="font-size:11px;font-weight:500;margin-top:4px;">Officer</div>
+            </div>
+            <div class="role-card" onclick="selectRole('admin')" id="r-admin" style="padding:12px 8px;">
+              <div style="font-size:22px;">⚖</div>
+              <div style="font-size:11px;font-weight:500;margin-top:4px;">Admin/SP</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Username / Mobile</label>
+          <input class="form-input" type="text" id="login-user" placeholder="Enter username" value="admin@police.gov.in" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Password</label>
+          <input class="form-input" type="password" id="login-pass" placeholder="Enter password" value="••••••••" />
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="doLogin()">Login Securely</button>
+        <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--text-muted);">
+          🔒 JWT Auth · Role-based Access · Encrypted
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD SCREEN -->
+  <div class="screen" id="screen-dashboard">
+    <div id="dash-citizen">
+      <div class="page-title">My FIR Dashboard</div>
+      <div class="page-sub" id="citizen-greeting">Welcome back, Rahul Sharma</div>
+      <div class="stat-row">
+        <div class="stat-card blue"><div class="stat-num">4</div><div class="stat-label">Total FIRs</div></div>
+        <div class="stat-card gold"><div class="stat-num">2</div><div class="stat-label">Under Investigation</div></div>
+        <div class="stat-card green"><div class="stat-num">1</div><div class="stat-label">Resolved</div></div>
+        <div class="stat-card red"><div class="stat-num">1</div><div class="stat-label">Pending Review</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Recent FIR Status</div>
+        <div class="fir-detail-row"><span class="fir-detail-key">FIR #2024-0891</span><span class="badge badge-gold">Under Investigation</span></div>
+        <div class="fir-detail-row"><span class="fir-detail-key">FIR #2024-0765</span><span class="badge badge-green">Resolved</span></div>
+        <div class="fir-detail-row"><span class="fir-detail-key">FIR #2024-0610</span><span class="badge badge-blue">In Court</span></div>
+        <div class="fir-detail-row"><span class="fir-detail-key">FIR #2024-0502</span><span class="badge badge-red">Pending Review</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Case Timeline · FIR #2024-0891</div>
+        <div class="timeline">
+          <div class="tl-step">
+            <div class="tl-col"><div class="tl-dot done"></div><div class="tl-line"></div></div>
+            <div class="tl-body"><div class="tl-title">FIR Filed</div><div class="tl-date">15 Mar 2024, 10:30 AM</div><div class="tl-note">FIR accepted at East District Police Station</div></div>
+          </div>
+          <div class="tl-step">
+            <div class="tl-col"><div class="tl-dot done"></div><div class="tl-line"></div></div>
+            <div class="tl-body"><div class="tl-title">Assigned to Officer</div><div class="tl-date">15 Mar 2024, 2:00 PM</div><div class="tl-note">Assigned to Inspector Rajesh Kumar, East District</div></div>
+          </div>
+          <div class="tl-step">
+            <div class="tl-col"><div class="tl-dot active"></div><div class="tl-line" style="background:var(--gray-mid);"></div></div>
+            <div class="tl-body"><div class="tl-title">Under Investigation</div><div class="tl-date">17 Mar 2024 · Active</div><div class="tl-note">Evidence collection in progress. Witness statements recorded.</div></div>
+          </div>
+          <div class="tl-step">
+            <div class="tl-col"><div class="tl-dot pending"></div><div class="tl-line"></div></div>
+            <div class="tl-body"><div class="tl-title">In Court</div><div class="tl-date">Pending</div></div>
+          </div>
+          <div class="tl-step">
+            <div class="tl-col"><div class="tl-dot pending"></div></div>
+            <div class="tl-body"><div class="tl-title">Case Closed</div><div class="tl-date">Pending</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="dash-officer" style="display:none;">
+      <div class="page-title">Officer Dashboard</div>
+      <div class="page-sub">Inspector Rajesh Kumar · East District</div>
+      <div class="stat-row">
+        <div class="stat-card red"><div class="stat-num">8</div><div class="stat-label">Assigned Cases</div></div>
+        <div class="stat-card gold"><div class="stat-num">3</div><div class="stat-label">In Progress</div></div>
+        <div class="stat-card green"><div class="stat-num">5</div><div class="stat-label">Resolved</div></div>
+        <div class="stat-card blue"><div class="stat-num">121</div><div class="stat-label">Total Handled</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">Priority Cases</div>
+          <div class="assign-row"><div><div class="assign-name">FIR #2024-0891 · Theft</div><div class="assign-dist">Filed: 15 Mar · High Priority</div></div><span class="badge badge-red">Active</span></div>
+          <div class="assign-row"><div><div class="assign-name">FIR #2024-0765 · Cybercrime</div><div class="assign-dist">Filed: 10 Mar · Medium</div></div><span class="badge badge-gold">Review</span></div>
+          <div class="assign-row"><div><div class="assign-name">FIR #2024-0610 · Assault</div><div class="assign-dist">Filed: 5 Mar · Low</div></div><span class="badge badge-green">Court</span></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Quick Actions</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <button class="btn btn-primary" onclick="showScreen('fir-list',null)" style="text-align:left;">View All Cases →</button>
+            <button class="btn btn-navy" style="text-align:left;">Upload Evidence →</button>
+            <button class="btn btn-secondary" style="text-align:left;">Add Investigation Note →</button>
+            <button class="btn btn-secondary" style="text-align:left;">View Case Reports →</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Case Workload Progress</div>
+        <div class="chart-bar-row"><div class="chart-bar-label">Theft/Robbery</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:70%;background:var(--red);"></div></div><div class="chart-bar-val">14</div></div>
+        <div class="chart-bar-row"><div class="chart-bar-label">Cybercrime</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:45%;background:var(--navy);"></div></div><div class="chart-bar-val">9</div></div>
+        <div class="chart-bar-row"><div class="chart-bar-label">Assault</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:30%;background:var(--gold);"></div></div><div class="chart-bar-val">6</div></div>
+        <div class="chart-bar-row"><div class="chart-bar-label">Fraud</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:20%;background:var(--blue);"></div></div><div class="chart-bar-val">4</div></div>
+      </div>
+    </div>
+
+    <div id="dash-admin" style="display:none;">
+      <div class="page-title">Super Admin Dashboard</div>
+      <div class="page-sub">Superintendent of Police · Arvind Kumar IPS · All Districts</div>
+      <div class="stat-row">
+        <div class="stat-card blue"><div class="stat-num">1,248</div><div class="stat-label">Total FIRs</div></div>
+        <div class="stat-card gold"><div class="stat-num">312</div><div class="stat-label">In Progress</div></div>
+        <div class="stat-card green"><div class="stat-num">829</div><div class="stat-label">Resolved</div></div>
+        <div class="stat-card red"><div class="stat-num">107</div><div class="stat-label">Pending</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">DSP Officers Overview</div>
+          <div class="officer-card">
+            <div class="officer-av">RK</div>
+            <div class="officer-info">
+              <div class="officer-name">Rajesh Kumar</div>
+              <div class="officer-dist">East District · DSP #123568</div>
+              <div class="officer-stats"><span>8 In-Progress</span><span style="color:var(--gold);">121 Total</span></div>
+            </div>
+            <button class="btn btn-primary btn-sm">Assign</button>
+          </div>
+          <div class="officer-card">
+            <div class="officer-av" style="background:var(--green);">SY</div>
+            <div class="officer-info">
+              <div class="officer-name">Suresh Yadav</div>
+              <div class="officer-dist">West District · DSP #123570</div>
+              <div class="officer-stats"><span>5 Pending</span><span style="color:var(--gold);">116 Total</span></div>
+            </div>
+            <button class="btn btn-primary btn-sm">Assign</button>
+          </div>
+          <div class="officer-card">
+            <div class="officer-av" style="background:var(--blue);">PS</div>
+            <div class="officer-info">
+              <div class="officer-name">Priya Sharma</div>
+              <div class="officer-dist">North District · DSP #123571</div>
+              <div class="officer-stats"><span style="color:var(--green);">Available · 9 Cases</span></div>
+            </div>
+            <button class="btn btn-green btn-sm">Available</button>
+          </div>
+          <button class="btn btn-navy" style="width:100%;margin-top:4px;">+ Add DSP Officer</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Crime Breakdown</div>
+          <div class="donut-wrap">
+            <svg width="110" height="110" viewBox="0 0 110 110">
+              <circle cx="55" cy="55" r="40" fill="none" stroke="#E8E8E8" stroke-width="18"/>
+              <circle cx="55" cy="55" r="40" fill="none" stroke="#C0392B" stroke-width="18" stroke-dasharray="100 151" stroke-dashoffset="0"/>
+              <circle cx="55" cy="55" r="40" fill="none" stroke="#1A2557" stroke-width="18" stroke-dasharray="63 188" stroke-dashoffset="-100"/>
+              <circle cx="55" cy="55" r="40" fill="none" stroke="#F39C12" stroke-width="18" stroke-dasharray="50 201" stroke-dashoffset="-163"/>
+              <circle cx="55" cy="55" r="40" fill="none" stroke="#2471A3" stroke-width="18" stroke-dasharray="38 213" stroke-dashoffset="-213"/>
+              <text x="55" y="51" text-anchor="middle" font-size="14" font-weight="500" fill="var(--color-text-primary,#1A1A1A)">42%</text>
+              <text x="55" y="64" text-anchor="middle" font-size="9" fill="var(--color-text-secondary,#777)">Theft</text>
+            </svg>
+            <div class="donut-legend">
+              <div class="donut-leg-item"><div class="donut-leg-dot" style="background:var(--red);"></div>Theft · 42%</div>
+              <div class="donut-leg-item"><div class="donut-leg-dot" style="background:var(--navy);"></div>Cyber Crime · 26%</div>
+              <div class="donut-leg-item"><div class="donut-leg-dot" style="background:var(--gold);"></div>Assault · 21%</div>
+              <div class="donut-leg-item"><div class="donut-leg-dot" style="background:var(--blue);"></div>Fraud · 11%</div>
+            </div>
+          </div>
+          <div style="margin-top:14px;">
+            <div style="font-size:11px;font-weight:500;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;">Weekly Trend</div>
+            <div class="chart-bar-row"><div class="chart-bar-label">Mon</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:60%;background:var(--navy);"></div></div><div class="chart-bar-val">12</div></div>
+            <div class="chart-bar-row"><div class="chart-bar-label">Tue</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:45%;background:var(--navy);"></div></div><div class="chart-bar-val">9</div></div>
+            <div class="chart-bar-row"><div class="chart-bar-label">Wed</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:80%;background:var(--red);"></div></div><div class="chart-bar-val">16</div></div>
+            <div class="chart-bar-row"><div class="chart-bar-label">Thu</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:55%;background:var(--navy);"></div></div><div class="chart-bar-val">11</div></div>
+            <div class="chart-bar-row"><div class="chart-bar-label">Today</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:30%;background:var(--gold);"></div></div><div class="chart-bar-val">6</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIR LIST SCREEN -->
+  <div class="screen" id="screen-fir-list">
+    <div class="sec-header">
+      <div class="page-title">FIR Case List</div>
+      <div class="sec-actions">
+        <button class="btn btn-secondary btn-sm" id="btn-file-fir-top" onclick="showScreen('file-fir',null)" style="display:none;">+ File New FIR</button>
+        <button class="btn btn-primary btn-sm" onclick="showScreen('fir-detail',null)">View Detail</button>
+      </div>
+    </div>
+    <div class="search-bar">
+      <input class="search-input" placeholder="Search by FIR number, name, type..." />
+      <select class="form-select" style="width:140px;">
+        <option>All Status</option>
+        <option>Filed</option>
+        <option>Investigating</option>
+        <option>In Court</option>
+        <option>Closed</option>
+      </select>
+    </div>
+    <div class="pill-row">
+      <div class="pill active">All</div>
+      <div class="pill">High Priority</div>
+      <div class="pill">Pending</div>
+      <div class="pill">Cybercrime</div>
+      <div class="pill">Assault</div>
+      <div class="pill">Theft</div>
+      <div class="pill">Fraud</div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="fir-table">
+        <thead>
+          <tr>
+            <th>FIR No.</th>
+            <th>Complainant</th>
+            <th>Type</th>
+            <th>Date</th>
+            <th>Officer</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:500;color:var(--navy);">#2024-0891</td>
+            <td>Rahul Sharma</td>
+            <td>Theft</td>
+            <td>15 Mar 2024</td>
+            <td>Rajesh Kumar</td>
+            <td><span class="badge badge-gold">Investigating</span></td>
+            <td><button class="btn btn-secondary btn-sm" onclick="showScreen('fir-detail',null)">View</button></td>
+          </tr>
+          <tr>
+            <td style="font-weight:500;color:var(--navy);">#2024-0890</td>
+            <td>Sunita Devi</td>
+            <td>Cybercrime</td>
+            <td>14 Mar 2024</td>
+            <td>Priya Sharma</td>
+            <td><span class="badge badge-blue">In Court</span></td>
+            <td><button class="btn btn-secondary btn-sm" onclick="showScreen('fir-detail',null)">View</button></td>
+          </tr>
+          <tr>
+            <td style="font-weight:500;color:var(--navy);">#2024-0889</td>
+            <td>Mohammed Ali</td>
+            <td>Assault</td>
+            <td>13 Mar 2024</td>
+            <td>Suresh Yadav</td>
+            <td><span class="badge badge-red">Pending Review</span></td>
+            <td><button class="btn btn-secondary btn-sm" onclick="showScreen('fir-detail',null)">View</button></td>
+          </tr>
+          <tr>
+            <td style="font-weight:500;color:var(--navy);">#2024-0888</td>
+            <td>Kavita Singh</td>
+            <td>Fraud</td>
+            <td>12 Mar 2024</td>
+            <td>Amit Singh</td>
+            <td><span class="badge badge-green">Resolved</span></td>
+            <td><button class="btn btn-secondary btn-sm" onclick="showScreen('fir-detail',null)">View</button></td>
+          </tr>
+          <tr>
+            <td style="font-weight:500;color:var(--navy);">#2024-0887</td>
+            <td>Vijay Prasad</td>
+            <td>Theft</td>
+            <td>11 Mar 2024</td>
+            <td>Rajesh Kumar</td>
+            <td><span class="badge badge-green">Resolved</span></td>
+            <td><button class="btn btn-secondary btn-sm" onclick="showScreen('fir-detail',null)">View</button></td>
+          </tr>
+          <tr>
+            <td style="font-weight:500;color:var(--navy);">#2024-0886</td>
+            <td>Anita Kumari</td>
+            <td>Harassment</td>
+            <td>10 Mar 2024</td>
+            <td>Priya Sharma</td>
+            <td><span class="badge badge-gray">Filed</span></td>
+            <td><button class="btn btn-secondary btn-sm" onclick="showScreen('fir-detail',null)">View</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FIR DETAIL SCREEN -->
+  <div class="screen" id="screen-fir-detail">
+    <div class="sec-header">
+      <div>
+        <button class="btn btn-secondary btn-sm" onclick="showScreen('fir-list',null)" style="margin-bottom:8px;">← Back to List</button>
+        <div class="page-title">FIR #2024-0891 · Theft</div>
+        <div class="page-sub">Filed: 15 March 2024 · East District Police Station</div>
+      </div>
+      <span class="badge badge-gold" style="font-size:12px;padding:6px 14px;">Under Investigation</span>
+    </div>
+    <div class="inner-tabs">
+      <div class="inner-tab active" onclick="switchTab('detail','details',this)">Details</div>
+      <div class="inner-tab" onclick="switchTab('detail','timeline',this)">Timeline</div>
+      <div class="inner-tab" onclick="switchTab('detail','evidence',this)">Evidence</div>
+      <div class="inner-tab" onclick="switchTab('detail','notes',this)">Officer Notes</div>
+    </div>
+    <div id="detail-details">
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">Complainant Information</div>
+          <div class="fir-detail-row"><span class="fir-detail-key">Name</span><span class="fir-detail-val">Rahul Sharma</span></div>
+          <div class="fir-detail-row"><span class="fir-detail-key">Mobile</span><span class="fir-detail-val">+91 98765 43210</span></div>
+          <div class="fir-detail-row"><span class="fir-detail-key">Aadhaar</span><span class="fir-detail-val">XXXX-XXXX-3421</span></div>
+          <div class="fir-detail-row"><span class="fir-detail-key">Address</span><span class="fir-detail-val">12, Gandhi Nagar, Patna</span></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Incident Details</div>
+          <div class="fir-detail-row"><span class="fir-detail-key">Type</span><span class="fir-detail-val">Theft (IPC Sec. 378)</span></div>
+          <div class="fir-detail-row"><span class="fir-detail-key">Location</span><span class="fir-detail-val">Kankarbagh Market, Patna</span></div>
+          <div class="fir-detail-row"><span class="fir-detail-key">Date of Incident</span><span class="fir-detail-val">15 Mar 2024, 09:00 AM</span></div>
+          <div class="fir-detail-row"><span class="fir-detail-key">Loss Amount</span><span class="fir-detail-val">₹45,000 (Mobile + Cash)</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Description</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7;">My mobile phone (iPhone 14, Black) and cash of ₹15,000 was stolen at Kankarbagh market while I was shopping. Two individuals on a motorcycle snatched my bag and fled towards Boring Road. I could identify one of them as wearing a red jacket. CCTV footage may be available from nearby shops.</div>
+      </div>
+      <div class="card" id="officer-action-card">
+        <div class="card-title">Update Case Status</div>
+        <div class="form-grid">
+          <div class="form-row">
+            <label class="form-label">Change Status</label>
+            <select class="form-select">
+              <option>Under Investigation</option>
+              <option>Evidence Collected</option>
+              <option>Chargesheet Filed</option>
+              <option>In Court</option>
+              <option>Case Closed</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label">Assign Officer</label>
+            <select class="form-select">
+              <option>Rajesh Kumar (East)</option>
+              <option>Suresh Yadav (West)</option>
+              <option>Priya Sharma (North)</option>
+              <option>Amit Singh (South)</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary">Update Case</button>
+      </div>
+    </div>
+    <div id="detail-timeline" style="display:none;">
+      <div class="card">
+        <div class="card-title">Case Progress Timeline</div>
+        <div class="timeline">
+          <div class="tl-step"><div class="tl-col"><div class="tl-dot done"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-title">FIR Filed</div><div class="tl-date">15 Mar 2024, 10:30 AM</div><div class="tl-note">FIR registered at East District Police Station by ASI Mohan Das</div></div></div>
+          <div class="tl-step"><div class="tl-col"><div class="tl-dot done"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-title">Assigned to Officer</div><div class="tl-date">15 Mar 2024, 2:00 PM</div><div class="tl-note">Case assigned to Inspector Rajesh Kumar by DSP Headquarters</div></div></div>
+          <div class="tl-step"><div class="tl-col"><div class="tl-dot done"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-title">Spot Inspection</div><div class="tl-date">16 Mar 2024, 11:00 AM</div><div class="tl-note">Officer visited crime scene, collected CCTV footage from 3 shops nearby</div></div></div>
+          <div class="tl-step"><div class="tl-col"><div class="tl-dot active"></div><div class="tl-line" style="background:var(--gray-mid);"></div></div><div class="tl-body"><div class="tl-title">Under Investigation</div><div class="tl-date">17 Mar 2024 · Ongoing</div><div class="tl-note">2 suspects identified from CCTV. Witness statements being recorded. Arrest imminent.</div></div></div>
+          <div class="tl-step"><div class="tl-col"><div class="tl-dot pending"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-title">Chargesheet Filing</div><div class="tl-date">Estimated: 30 Mar 2024</div></div></div>
+          <div class="tl-step"><div class="tl-col"><div class="tl-dot pending"></div><div class="tl-line"></div></div><div class="tl-body"><div class="tl-title">Court Hearing</div><div class="tl-date">Pending</div></div></div>
+          <div class="tl-step"><div class="tl-col"><div class="tl-dot pending"></div></div><div class="tl-body"><div class="tl-title">Case Closed</div><div class="tl-date">Pending</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div id="detail-evidence" style="display:none;">
+      <div class="card">
+        <div class="card-title">Evidence Files</div>
+        <div><span class="evidence-thumb">📷</span><span class="evidence-thumb">🎥</span><span class="evidence-thumb">📄</span></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">CCTV_clip_shop1.mp4 · Scene_photo_1.jpg · Witness_statement.pdf</div>
+        <div class="upload-zone" style="margin-top:14px;">Drop files here or click to upload · Images, Videos, Documents supported</div>
+      </div>
+    </div>
+    <div id="detail-notes" style="display:none;">
+      <div class="card">
+        <div class="card-title">Investigation Notes</div>
+        <div class="tl-note" style="margin-bottom:10px;"><strong>17 Mar:</strong> Two suspects identified from CCTV footage. Suspect 1 wearing red jacket, Suspect 2 on motorcycle (UP-85 plate). Surveillance ongoing.</div>
+        <div class="tl-note" style="margin-bottom:10px;"><strong>16 Mar:</strong> Collected CCTV footage from Sharma Electronics, Kankarbagh. Witness Mrs. Geeta (shopkeeper) gave statement.</div>
+        <div class="tl-note"><strong>15 Mar:</strong> Initial inspection done. Crime scene photographed. Complainant statement recorded.</div>
+        <div class="form-row" style="margin-top:14px;">
+          <label class="form-label">Add Note</label>
+          <textarea class="form-textarea" placeholder="Enter investigation update..."></textarea>
+        </div>
+        <button class="btn btn-primary btn-sm">Save Note</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILE FIR SCREEN -->
+  <div class="screen" id="screen-file-fir">
+    <div class="page-title">File New FIR</div>
+    <div class="page-sub">All information is encrypted and securely stored</div>
+    <div class="card">
+      <div class="card-title">Complainant Details</div>
+      <div class="form-grid">
+        <div class="form-row"><label class="form-label">Full Name</label><input class="form-input" placeholder="As per Aadhaar" /></div>
+        <div class="form-row"><label class="form-label">Mobile Number</label><input class="form-input" type="tel" placeholder="+91 XXXXX XXXXX" /></div>
+        <div class="form-row"><label class="form-label">Aadhaar Number</label><input class="form-input" placeholder="XXXX-XXXX-XXXX" /></div>
+        <div class="form-row"><label class="form-label">Email</label><input class="form-input" type="email" placeholder="Optional" /></div>
+      </div>
+      <div class="form-row"><label class="form-label">Address</label><input class="form-input" placeholder="Full address with PIN code" /></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Incident Information</div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label class="form-label">Incident Type</label>
+          <select class="form-select">
+            <option>Select crime type...</option>
+            <option>Theft / Robbery</option>
+            <option>Assault / Battery</option>
+            <option>Cybercrime / Online Fraud</option>
+            <option>Domestic Violence</option>
+            <option>Property Dispute</option>
+            <option>Missing Person</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Date & Time of Incident</label>
+          <input class="form-input" type="datetime-local" />
+        </div>
+      </div>
+      <div class="form-row"><label class="form-label">Location of Incident</label><input class="form-input" placeholder="Address / Landmark / GPS coordinates" /></div>
+      <div class="form-row"><label class="form-label">Detailed Description</label><textarea class="form-textarea" style="min-height:100px;" placeholder="Describe the incident in detail — what happened, suspect description, witnesses, etc."></textarea></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Evidence Attachments</div>
+      <div class="upload-zone">📎 Attach Photos, Videos, or Documents<br><span style="font-size:10px;">Max 50MB per file · JPG, PNG, MP4, PDF supported</span></div>
+      <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
+        <span class="badge badge-blue">photo_evidence.jpg ×</span>
+        <span class="badge badge-blue">video_clip.mp4 ×</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:20px;">
+      <button class="btn btn-primary" onclick="showFirSuccess()">Submit FIR</button>
+      <button class="btn btn-secondary">Save as Draft</button>
+    </div>
+    <div id="fir-success" style="display:none;" class="card" style="background:var(--green-light);">
+      <div style="text-align:center;padding:16px;">
+        <div style="font-size:36px;margin-bottom:8px;">✅</div>
+        <div style="font-size:16px;font-weight:500;color:var(--green);">FIR Filed Successfully!</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Your FIR number is <strong>#2024-0892</strong></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">You will receive SMS/Email updates as your case progresses.</div>
+        <button class="btn btn-navy" style="margin-top:12px;" onclick="showScreen('fir-list',null)">Track Your FIR →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OFFICERS SCREEN -->
+  <div class="screen" id="screen-officers">
+    <div class="page-title">Officer Management</div>
+    <div class="page-sub">Manage DSP officers and case assignments across all districts</div>
+    <div class="inner-tabs">
+      <div class="inner-tab active" onclick="switchTab('officers','list',this)">Available DSPs</div>
+      <div class="inner-tab" onclick="switchTab('officers','assign',this)">Assign FIR</div>
+      <div class="inner-tab" onclick="switchTab('officers','add',this)">Add Officer</div>
+    </div>
+    <div id="officers-list">
+      <div class="stat-row" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat-card green"><div class="stat-num">3</div><div class="stat-label">Available</div></div>
+        <div class="stat-card gold"><div class="stat-num">6</div><div class="stat-label">Occupied</div></div>
+        <div class="stat-card blue"><div class="stat-num">12</div><div class="stat-label">Total Officers</div></div>
+      </div>
+      <div class="officer-card"><div class="officer-av">RK</div><div class="officer-info"><div class="officer-name">Rajesh Kumar · DSP #123568</div><div class="officer-dist">East District · 12 Cases Assigned</div><div class="progress-wrap" style="margin-top:6px;"><div class="progress-fill" style="width:80%;background:var(--red);"></div></div></div><button class="btn btn-primary btn-sm">View Details</button></div>
+      <div class="officer-card"><div class="officer-av" style="background:var(--green);">SY</div><div class="officer-info"><div class="officer-name">Suresh Yadav · DSP #123570</div><div class="officer-dist">West District · 8 Cases Assigned</div><div class="progress-wrap" style="margin-top:6px;"><div class="progress-fill" style="width:55%;background:var(--gold);"></div></div></div><button class="btn btn-primary btn-sm">View Details</button></div>
+      <div class="officer-card"><div class="officer-av" style="background:var(--blue);">PS</div><div class="officer-info"><div class="officer-name">Priya Sharma · DSP #123571</div><div class="officer-dist">North District · 4 Cases Assigned</div><div class="progress-wrap" style="margin-top:6px;"><div class="progress-fill" style="width:25%;background:var(--green);"></div></div></div><button class="btn btn-green btn-sm">Available</button></div>
+      <div class="officer-card"><div class="officer-av" style="background:var(--gold);">AS</div><div class="officer-info"><div class="officer-name">Amit Singh · DSP #123572</div><div class="officer-dist">South District · 6 Cases Assigned</div><div class="progress-wrap" style="margin-top:6px;"><div class="progress-fill" style="width:40%;background:var(--navy);"></div></div></div><button class="btn btn-primary btn-sm">View Details</button></div>
+    </div>
+    <div id="officers-assign" style="display:none;">
+      <div class="card">
+        <div class="card-title">Assign FIR to Officer</div>
+        <div class="form-row"><label class="form-label">Search FIR ID</label><input class="form-input" placeholder="Enter FIR number e.g. 2024-0891" /></div>
+        <div class="form-row"><label class="form-label">Select Officer</label>
+          <div class="assign-row"><input type="radio" name="off" style="margin-right:8px;"><div><div class="assign-name">Rajesh Kumar · East District</div><div class="assign-dist">8 active cases · High workload</div></div><span class="badge badge-red">Busy</span></div>
+          <div class="assign-row"><input type="radio" name="off" style="margin-right:8px;"><div><div class="assign-name">Suresh Yadav · West District</div><div class="assign-dist">5 active cases · Medium workload</div></div><span class="badge badge-gold">Medium</span></div>
+          <div class="assign-row"><input type="radio" name="off" style="margin-right:8px;"><div><div class="assign-name">Priya Sharma · North District</div><div class="assign-dist">4 active cases · Low workload</div></div><span class="badge badge-green">Available</span></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:8px;">Assign FIR</button>
+      </div>
+    </div>
+    <div id="officers-add" style="display:none;">
+      <div class="card">
+        <div class="card-title">Add New DSP Officer</div>
+        <div class="form-grid">
+          <div class="form-row"><label class="form-label">Full Name</label><input class="form-input" placeholder="Officer full name" /></div>
+          <div class="form-row"><label class="form-label">Badge / DSP Number</label><input class="form-input" placeholder="DSP #XXXXXX" /></div>
+          <div class="form-row"><label class="form-label">District</label><select class="form-select"><option>East District</option><option>West District</option><option>North District</option><option>South District</option></select></div>
+          <div class="form-row"><label class="form-label">Rank</label><select class="form-select"><option>Inspector</option><option>DSP</option><option>ASI</option><option>Constable</option></select></div>
+          <div class="form-row"><label class="form-label">Mobile</label><input class="form-input" type="tel" placeholder="+91 XXXXX XXXXX" /></div>
+          <div class="form-row"><label class="form-label">Email</label><input class="form-input" type="email" placeholder="@police.gov.in" /></div>
+        </div>
+        <button class="btn btn-primary">Create Officer Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS SCREEN -->
+  <div class="screen" id="screen-analytics">
+    <div class="page-title">Analytics Dashboard</div>
+    <div class="page-sub">Live case statistics and performance metrics</div>
+    <div class="analytics-kpi">
+      <div class="kpi-card"><div class="kpi-num" style="color:var(--navy);">1,248</div><div class="kpi-label">Total FIRs This Year</div><div class="kpi-change up">↑ 12% from last year</div></div>
+      <div class="kpi-card"><div class="kpi-num" style="color:var(--green);">829</div><div class="kpi-label">Cases Resolved</div><div class="kpi-change up">↑ 66.4% resolution rate</div></div>
+      <div class="kpi-card"><div class="kpi-num" style="color:var(--red);">107</div><div class="kpi-label">Pending Review</div><div class="kpi-change dn">↓ 8% from last month</div></div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Cases by Crime Type</div>
+        <div class="chart-bar-row"><div class="chart-bar-label">Theft</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:80%;background:var(--red);"></div></div><div class="chart-bar-val">524</div></div>
+        <div class="chart-bar-row"><div class="chart-bar-label">Cybercrime</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:60%;background:var(--navy);"></div></div><div class="chart-bar-val">324</div></div>
+        <div class="chart-bar-row"><div class="chart-bar-label">Assault</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:44%;background:var(--gold);"></div></div><div class="chart-bar-val">262</div></div>
+        <div class="chart-bar-row"><div class="chart-bar-label">Fraud</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:26%;background:var(--blue);"></div></div><div class="chart-bar-val">138</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">District Performance</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>East District</span><span style="color:var(--green);">76% resolved</span></div><div class="progress-wrap"><div class="progress-fill" style="width:76%;background:var(--green);"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>West District</span><span style="color:var(--gold);">62% resolved</span></div><div class="progress-wrap"><div class="progress-fill" style="width:62%;background:var(--gold);"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>North District</span><span style="color:var(--blue);">81% resolved</span></div><div class="progress-wrap"><div class="progress-fill" style="width:81%;background:var(--blue);"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>South District</span><span style="color:var(--red);">55% resolved</span></div><div class="progress-wrap"><div class="progress-fill" style="width:55%;background:var(--red);"></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Monthly FIR Volume (2024)</div>
+      <div style="display:flex;align-items:flex-end;gap:8px;height:100px;padding-top:10px;">
+        <div style="display:flex;flex-direction:column;align-items:center;flex:1;"><div style="background:var(--navy);border-radius:3px 3px 0 0;width:100%;height:60px;"></div><div style="font-size:9px;color:var(--text-muted);margin-top:3px;">Jan</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;flex:1;"><div style="background:var(--navy);border-radius:3px 3px 0 0;width:100%;height:75px;"></div><div style="font-size:9px;color:var(--text-muted);margin-top:3px;">Feb</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;flex:1;"><div style="background:var(--red);border-radius:3px 3px 0 0;width:100%;height:90px;"></div><div style="font-size:9px;color:var(--text-muted);margin-top:3px;">Mar</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;flex:1;"><div style="background:var(--navy);border-radius:3px 3px 0 0;width:100%;height:70px;"></div><div style="font-size:9px;color:var(--text-muted);margin-top:3px;">Apr</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;flex:1;"><div style="background:var(--navy);border-radius:3px 3px 0 0;width:100%;height:55px;"></div><div style="font-size:9px;color:var(--text-muted);margin-top:3px;">May</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;flex:1;"><div style="background:var(--navy);border-radius:3px 3px 0 0;width:100%;height:65px;"></div><div style="font-size:9px;color:var(--text-muted);margin-top:3px;">Jun</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;flex:1;"><div style="background:var(--navy);border-radius:3px 3px 0 0;width:100%;height:80px;"></div><div style="font-size:9px;color:var(--text-muted);margin-top:3px;">Jul</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;flex:1;"><div style="background:var(--gold);border-radius:3px 3px 0 0;width:100%;height:85px;"></div><div style="font-size:9px;color:var(--text-muted);margin-top:3px;">Aug</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;flex:1;"><div style="background:var(--navy);border-radius:3px 3px 0 0;width:100%;height:72px;"></div><div style="font-size:9px;color:var(--text-muted);margin-top:3px;">Sep</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;flex:1;"><div style="background:var(--navy);border-radius:3px 3px 0 0;width:100%;height:68px;"></div><div style="font-size:9px;color:var(--text-muted);margin-top:3px;">Oct</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;flex:1;"><div style="background:var(--navy);border-radius:3px 3px 0 0;width:100%;height:88px;"></div><div style="font-size:9px;color:var(--text-muted);margin-top:3px;">Nov</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;flex:1;"><div style="background:var(--navy);border-radius:3px 3px 0 0;width:100%;height:95px;"></div><div style="font-size:9px;color:var(--text-muted);margin-top:3px;">Dec</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS SCREEN -->
+  <div class="screen" id="screen-notifications">
+    <div class="page-title">Notifications</div>
+    <div class="page-sub">Real-time case updates and alerts</div>
+    <div class="notif"><div class="notif-icon">⚠</div><div><div class="notif-text">Your FIR #2024-0891 status updated to <strong>Under Investigation</strong>. Officer Rajesh Kumar has been assigned.</div><div class="notif-time">2 hours ago</div></div></div>
+    <div class="notif" style="background:var(--green-light);border-color:var(--green);"><div class="notif-icon" style="color:var(--green);">✓</div><div><div class="notif-text">FIR #2024-0888 has been <strong>Resolved</strong>. Case closed by District Court.</div><div class="notif-time">Yesterday, 4:30 PM</div></div></div>
+    <div class="notif" style="background:var(--gold-light);border-color:var(--gold);"><div class="notif-icon" style="color:var(--gold);">📅</div><div><div class="notif-text">Court hearing scheduled for FIR #2024-0890. Date: <strong>25 March 2024</strong> at District Court, Patna.</div><div class="notif-time">2 days ago</div></div></div>
+    <div class="notif"><div class="notif-icon">📋</div><div><div class="notif-text">Evidence upload requested for FIR #2024-0889. Please submit photos/documents within 48 hours.</div><div class="notif-time">3 days ago</div></div></div>
+    <div class="notif"><div class="notif-icon">👮</div><div><div class="notif-text">3 new FIRs assigned from East District requiring immediate investigation.</div><div class="notif-time">4 days ago</div></div></div>
+  </div>
+</div>
+
+  <script src="script.js"></script>
+</body>
+</html>
