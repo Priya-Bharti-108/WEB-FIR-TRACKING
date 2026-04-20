@@ -45,7 +45,7 @@
         <div style="font-size:18px;font-weight:500;">Digital FIR Portal</div>
         <div style="font-size:11px;opacity:0.7;margin-top:4px;">Secure · Transparent · Accountable</div>
       </div>
-      <div class="login-body">
+      <div class="login-body" id="login-body-main">
         <div style="margin-bottom:16px;">
           <div style="font-size:13px;font-weight:500;margin-bottom:10px;">Login as:</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
@@ -69,15 +69,66 @@
         </div>
         <div class="form-row">
           <label class="form-label">Username / Mobile</label>
-          <input class="form-input" type="text" id="login-user" placeholder="Enter username" value="admin@police.gov.in" />
+          <input class="form-input" type="text" id="login-user" placeholder="Enter username or mobile" value="" />
         </div>
         <div class="form-row">
           <label class="form-label">Password</label>
-          <input class="form-input" type="password" id="login-pass" placeholder="Enter password" value="••••••••" />
+          <input class="form-input" type="password" id="login-pass" placeholder="Enter password" value="" />
         </div>
         <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="doLogin()">Login Securely</button>
         <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--text-muted);">
           🔒 JWT Auth · Role-based Access · Encrypted
+        </div>
+        <div style="text-align:center;margin-top:15px;font-size:13px;">
+          <a href="#" onclick="toggleRegister('register')" style="color:var(--navy);font-weight:500;text-decoration:none;">New User? Register Here</a>
+        </div>
+      </div>
+
+      <!-- REGISTER BODY -->
+      <div class="login-body" id="register-body-main" style="display:none;">
+        <div style="margin-bottom:16px;">
+          <div style="font-size:18px;font-weight:600;color:var(--navy);">New User Registration</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Select your role and register</div>
+        </div>
+        <div id="reg-step-1">
+          <div class="form-row">
+            <label class="form-label">Select Role</label>
+            <select class="form-select" id="reg-role">
+              <option value="citizen">Citizen</option>
+              <option value="officer">Officer</option>
+              <option value="court">Court Portal</option>
+              <option value="admin">Admin/SP</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label">Full Name</label>
+            <input class="form-input" type="text" id="reg-name" placeholder="Enter full name" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">Phone Number</label>
+            <input class="form-input" type="tel" id="reg-phone" placeholder="Enter 10-digit mobile number" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">Create Password</label>
+            <input class="form-input" type="password" id="reg-pass" placeholder="Create a password" />
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="sendOTP()">Get OTP</button>
+        </div>
+        <div id="reg-step-2" style="display:none;">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">An OTP has been sent to <span id="otp-phone-display" style="font-weight:600;color:var(--navy);"></span></div>
+          <div class="form-row">
+            <label class="form-label">Enter OTP</label>
+            <input class="form-input" type="text" id="reg-otp" placeholder="Enter 6-digit OTP (e.g. 123456)" maxlength="6" />
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:4px;" onclick="verifyOTP()">Verify & Register</button>
+        </div>
+        <div id="reg-step-3" style="display:none;text-align:center;padding:20px 0;">
+          <div style="font-size:36px;margin-bottom:8px;">✅</div>
+          <div style="font-size:16px;font-weight:500;color:var(--green);">Registration Successful!</div>
+          <button class="btn btn-navy" style="width:100%;margin-top:16px;" onclick="toggleRegister('login')">Proceed to Login</button>
+        </div>
+        <div style="text-align:center;margin-top:15px;font-size:13px;" id="reg-login-link">
+          <a href="#" onclick="toggleRegister('login')" style="color:var(--navy);font-weight:500;text-decoration:none;">Already have an account? Login</a>
         </div>
       </div>
     </div>
@@ -89,17 +140,14 @@
       <div class="page-title">My FIR Dashboard</div>
       <div class="page-sub" id="citizen-greeting">Welcome back, Rahul Sharma</div>
       <div class="stat-row">
-        <div class="stat-card blue"><div class="stat-num">4</div><div class="stat-label">Total FIRs</div></div>
-        <div class="stat-card gold"><div class="stat-num">2</div><div class="stat-label">Under Investigation</div></div>
-        <div class="stat-card green"><div class="stat-num">1</div><div class="stat-label">Resolved</div></div>
-        <div class="stat-card red"><div class="stat-num">1</div><div class="stat-label">Pending Review</div></div>
+        <div class="stat-card blue"><div class="stat-num" id="dash-tot-firs">0</div><div class="stat-label">Total FIRs</div></div>
+        <div class="stat-card gold"><div class="stat-num" id="dash-inv-firs">0</div><div class="stat-label">Under Investigation</div></div>
+        <div class="stat-card green"><div class="stat-num" id="dash-res-firs">0</div><div class="stat-label">Resolved</div></div>
+        <div class="stat-card red"><div class="stat-num" id="dash-pen-firs">0</div><div class="stat-label">Pending Review</div></div>
       </div>
       <div class="card">
         <div class="card-title">Recent FIR Status</div>
-        <div class="fir-detail-row"><span class="fir-detail-key">FIR #2024-0891</span><span class="badge badge-gold">Under Investigation</span></div>
-        <div class="fir-detail-row"><span class="fir-detail-key">FIR #2024-0765</span><span class="badge badge-green">Resolved</span></div>
-        <div class="fir-detail-row"><span class="fir-detail-key">FIR #2024-0610</span><span class="badge badge-blue">In Court</span></div>
-        <div class="fir-detail-row"><span class="fir-detail-key">FIR #2024-0502</span><span class="badge badge-red">Pending Review</span></div>
+        <div id="dash-recent-firs"></div>
       </div>
       <div class="card">
         <div class="card-title">Case Timeline · FIR #2024-0891</div>
@@ -234,6 +282,124 @@
         </div>
       </div>
     </div>
+
+    <div id="dash-court" style="display:none;">
+      <div class="page-title">Court Dashboard</div>
+      <div class="page-sub">Hon. District Judge · District Court</div>
+      <div class="stat-row">
+        <div class="stat-card green"><div class="stat-num">42</div><div class="stat-label">Active Cases</div></div>
+        <div class="stat-card red"><div class="stat-num">3</div><div class="stat-label">Hearings Today</div></div>
+        <div class="stat-card gold"><div class="stat-num">8</div><div class="stat-label">Pending Charge-sheets</div></div>
+        <div class="stat-card blue"><div class="stat-num">15</div><div class="stat-label">New Documents</div></div>
+      </div>
+      <div class="two-col" style="grid-template-columns: 1.6fr 1fr;">
+        <div class="card">
+          <div class="card-title">Upcoming Hearings</div>
+          <div style="overflow-x:auto;">
+            <table class="fir-table">
+              <thead>
+                <tr>
+                  <th>Case Title</th>
+                  <th>FIR No.</th>
+                  <th>Court/Judge</th>
+                  <th>Purpose</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-weight:500;color:var(--navy);">Rahul vs State</td>
+                  <td>#102/24</td>
+                  <td>Hall 3</td>
+                  <td>JC</td>
+                  <td>28 May 2024</td>
+                  <td><button class="btn btn-secondary btn-sm">Update</button></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500;color:var(--navy);">Amit's Bail</td>
+                  <td>#88/24</td>
+                  <td>Hall 1</td>
+                  <td>Arguments</td>
+                  <td>29 May 2024</td>
+                  <td><button class="btn btn-secondary btn-sm">Update</button></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500;color:var(--navy);">Rahul vs State</td>
+                  <td>#88/24</td>
+                  <td>Hall 1</td>
+                  <td>Arguments</td>
+                  <td>29 May 2024</td>
+                  <td><button class="btn btn-secondary btn-sm">Update</button></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500;color:var(--navy);">Rahul vs State</td>
+                  <td>#102/24</td>
+                  <td>Hall 3</td>
+                  <td><span class="badge badge-green">Green</span></td>
+                  <td>28 May 2024</td>
+                  <td><button class="btn btn-secondary btn-sm">Update</button></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500;color:var(--navy);">Rahul vs State</td>
+                  <td>#102/24</td>
+                  <td>Hall 3</td>
+                  <td><span class="badge badge-red">Green</span></td>
+                  <td>29 May 2024</td>
+                  <td><button class="btn btn-secondary btn-sm">Update</button></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:500;color:var(--navy);">Amit's Bail</td>
+                  <td>#88/24</td>
+                  <td>Hall 1</td>
+                  <td>JC</td>
+                  <td>29 May 2024</td>
+                  <td><button class="btn btn-secondary btn-sm">Update</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Quick Case Update</div>
+          <div class="form-row">
+            <label class="form-label">Search Case by FIR No.</label>
+            <div style="display:flex;gap:8px;">
+              <input class="form-input" id="court-search-fir" placeholder="e.g. #2024-0001" style="flex:1;" />
+              <button class="btn btn-navy" onclick="searchCourtFir()">Search</button>
+            </div>
+          </div>
+          <div id="court-fir-details" style="display:none;background:var(--gray-light);padding:10px;border-radius:4px;margin-bottom:12px;font-size:12px;line-height:1.6;border:1px solid #eee;"></div>
+          <div class="form-row">
+            <label class="form-label">Next Hearing Date</label>
+            <input class="form-input" type="date" id="court-update-date" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">Purpose</label>
+            <select class="form-select" id="court-update-purpose">
+              <option>Framing of Charges</option>
+              <option>Cross Examination</option>
+              <option>Final Arguments</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label">Notes for Client</label>
+            <textarea class="form-textarea" id="court-update-notes" placeholder="Type summary here..."></textarea>
+          </div>
+          <button class="btn btn-navy" style="width:100%;margin-top:10px;" onclick="submitCourtUpdate()">Submit Update</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:0px;">
+        <div class="card">
+          <div class="card-title">Recent Activity</div>
+          <div style="padding:20px;text-align:center;color:var(--text-muted);font-size:12px;">Recent activities and case changes logged here.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Client Documents</div>
+          <div style="padding:20px;text-align:center;color:var(--text-muted);font-size:12px;">Recently accessed client files.</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- FIR LIST SCREEN -->
@@ -277,61 +443,7 @@
             <th>Action</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td style="font-weight:500;color:var(--navy);">#2024-0891</td>
-            <td>Rahul Sharma</td>
-            <td>Theft</td>
-            <td>15 Mar 2024</td>
-            <td>Rajesh Kumar</td>
-            <td><span class="badge badge-gold">Investigating</span></td>
-            <td><button class="btn btn-secondary btn-sm" onclick="showScreen('fir-detail',null)">View</button></td>
-          </tr>
-          <tr>
-            <td style="font-weight:500;color:var(--navy);">#2024-0890</td>
-            <td>Sunita Devi</td>
-            <td>Cybercrime</td>
-            <td>14 Mar 2024</td>
-            <td>Priya Sharma</td>
-            <td><span class="badge badge-blue">In Court</span></td>
-            <td><button class="btn btn-secondary btn-sm" onclick="showScreen('fir-detail',null)">View</button></td>
-          </tr>
-          <tr>
-            <td style="font-weight:500;color:var(--navy);">#2024-0889</td>
-            <td>Mohammed Ali</td>
-            <td>Assault</td>
-            <td>13 Mar 2024</td>
-            <td>Suresh Yadav</td>
-            <td><span class="badge badge-red">Pending Review</span></td>
-            <td><button class="btn btn-secondary btn-sm" onclick="showScreen('fir-detail',null)">View</button></td>
-          </tr>
-          <tr>
-            <td style="font-weight:500;color:var(--navy);">#2024-0888</td>
-            <td>Kavita Singh</td>
-            <td>Fraud</td>
-            <td>12 Mar 2024</td>
-            <td>Amit Singh</td>
-            <td><span class="badge badge-green">Resolved</span></td>
-            <td><button class="btn btn-secondary btn-sm" onclick="showScreen('fir-detail',null)">View</button></td>
-          </tr>
-          <tr>
-            <td style="font-weight:500;color:var(--navy);">#2024-0887</td>
-            <td>Vijay Prasad</td>
-            <td>Theft</td>
-            <td>11 Mar 2024</td>
-            <td>Rajesh Kumar</td>
-            <td><span class="badge badge-green">Resolved</span></td>
-            <td><button class="btn btn-secondary btn-sm" onclick="showScreen('fir-detail',null)">View</button></td>
-          </tr>
-          <tr>
-            <td style="font-weight:500;color:var(--navy);">#2024-0886</td>
-            <td>Anita Kumari</td>
-            <td>Harassment</td>
-            <td>10 Mar 2024</td>
-            <td>Priya Sharma</td>
-            <td><span class="badge badge-gray">Filed</span></td>
-            <td><button class="btn btn-secondary btn-sm" onclick="showScreen('fir-detail',null)">View</button></td>
-          </tr>
+        <tbody id="fir-table-body">
         </tbody>
       </table>
     </div>
@@ -444,19 +556,19 @@
     <div class="card">
       <div class="card-title">Complainant Details</div>
       <div class="form-grid">
-        <div class="form-row"><label class="form-label">Full Name</label><input class="form-input" placeholder="As per Aadhaar" /></div>
-        <div class="form-row"><label class="form-label">Mobile Number</label><input class="form-input" type="tel" placeholder="+91 XXXXX XXXXX" /></div>
+        <div class="form-row"><label class="form-label">Full Name</label><input class="form-input" id="fir-input-name" placeholder="As per Aadhaar" /></div>
+        <div class="form-row"><label class="form-label">Mobile Number</label><input class="form-input" id="fir-input-mobile" type="tel" placeholder="+91 XXXXX XXXXX" /></div>
         <div class="form-row"><label class="form-label">Aadhaar Number</label><input class="form-input" placeholder="XXXX-XXXX-XXXX" /></div>
         <div class="form-row"><label class="form-label">Email</label><input class="form-input" type="email" placeholder="Optional" /></div>
       </div>
-      <div class="form-row"><label class="form-label">Address</label><input class="form-input" placeholder="Full address with PIN code" /></div>
+      <div class="form-row"><label class="form-label">Address</label><input class="form-input" id="fir-input-address" placeholder="Full address with PIN code" /></div>
     </div>
     <div class="card">
       <div class="card-title">Incident Information</div>
       <div class="form-grid">
         <div class="form-row">
           <label class="form-label">Incident Type</label>
-          <select class="form-select">
+          <select class="form-select" id="fir-input-type">
             <option>Select crime type...</option>
             <option>Theft / Robbery</option>
             <option>Assault / Battery</option>
@@ -469,11 +581,11 @@
         </div>
         <div class="form-row">
           <label class="form-label">Date & Time of Incident</label>
-          <input class="form-input" type="datetime-local" />
+          <input class="form-input" type="datetime-local" id="fir-input-datetime" />
         </div>
       </div>
-      <div class="form-row"><label class="form-label">Location of Incident</label><input class="form-input" placeholder="Address / Landmark / GPS coordinates" /></div>
-      <div class="form-row"><label class="form-label">Detailed Description</label><textarea class="form-textarea" style="min-height:100px;" placeholder="Describe the incident in detail — what happened, suspect description, witnesses, etc."></textarea></div>
+      <div class="form-row"><label class="form-label">Location of Incident</label><input class="form-input" id="fir-input-location" placeholder="Address / Landmark / GPS coordinates" /></div>
+      <div class="form-row"><label class="form-label">Detailed Description</label><textarea class="form-textarea" id="fir-input-desc" style="min-height:100px;" placeholder="Describe the incident in detail — what happened, suspect description, witnesses, etc."></textarea></div>
     </div>
     <div class="card">
       <div class="card-title">Evidence Attachments</div>
@@ -491,7 +603,7 @@
       <div style="text-align:center;padding:16px;">
         <div style="font-size:36px;margin-bottom:8px;">✅</div>
         <div style="font-size:16px;font-weight:500;color:var(--green);">FIR Filed Successfully!</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Your FIR number is <strong>#2024-0892</strong></div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Your FIR number is <strong id="success-fir-id"></strong></div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">You will receive SMS/Email updates as your case progresses.</div>
         <button class="btn btn-navy" style="margin-top:12px;" onclick="showScreen('fir-list',null)">Track Your FIR →</button>
       </div>
@@ -596,11 +708,7 @@
   <div class="screen" id="screen-notifications">
     <div class="page-title">Notifications</div>
     <div class="page-sub">Real-time case updates and alerts</div>
-    <div class="notif"><div class="notif-icon">⚠</div><div><div class="notif-text">Your FIR #2024-0891 status updated to <strong>Under Investigation</strong>. Officer Rajesh Kumar has been assigned.</div><div class="notif-time">2 hours ago</div></div></div>
-    <div class="notif" style="background:var(--green-light);border-color:var(--green);"><div class="notif-icon" style="color:var(--green);">✓</div><div><div class="notif-text">FIR #2024-0888 has been <strong>Resolved</strong>. Case closed by District Court.</div><div class="notif-time">Yesterday, 4:30 PM</div></div></div>
-    <div class="notif" style="background:var(--gold-light);border-color:var(--gold);"><div class="notif-icon" style="color:var(--gold);">📅</div><div><div class="notif-text">Court hearing scheduled for FIR #2024-0890. Date: <strong>25 March 2024</strong> at District Court, Patna.</div><div class="notif-time">2 days ago</div></div></div>
-    <div class="notif"><div class="notif-icon">📋</div><div><div class="notif-text">Evidence upload requested for FIR #2024-0889. Please submit photos/documents within 48 hours.</div><div class="notif-time">3 days ago</div></div></div>
-    <div class="notif"><div class="notif-icon">👮</div><div><div class="notif-text">3 new FIRs assigned from East District requiring immediate investigation.</div><div class="notif-time">4 days ago</div></div></div>
+    <div id="notifications-list"></div>
   </div>
 </div>
 
